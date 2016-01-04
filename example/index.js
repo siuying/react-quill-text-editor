@@ -11,6 +11,5 @@ main();
 
 function main() {
   const app = document.querySelector('#app');
-  console.log("app", app)
   ReactDOM.render(<App />, app);
 }
