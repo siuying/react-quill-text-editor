@@ -1,149 +1,57 @@
 import React from 'react'
 import Quill from 'quill'
+import UUID from 'uuid'
+import Toolbar from './Toolbar'
 
-require('quill/dist/quill.snow.css')
 
 export default class QuillTextEditor extends React.Component {
+  constructor(props) {
+    super(props)
+    this._id = UUID.v4()
+  }
+
   componentDidMount() {
-    this.quill = new Quill(this._editor, {
-      theme: 'snow',
-      formats: [],
+    const toolbarId = this.props.toolbar || `#toolbar-${this._id}`
+    this.quill = new Quill(`#editor-${this._id}`, {
+      theme: this.props.theme
     })
     this.quill.addModule('toolbar', {
-      container: this._toolbar
+      container: toolbarId
     })
+    this.quill.on('text-change', this.props.onTextChange)
+    this.quill.on('selection-change', this.props.onSelectionChange)
   }
 
   componentWillUnmount() {
     if (this.quill) {
+      this.quill.off('text-change', this.props.onTextChange)
+      this.quill.off('selection-change', this.props.onSelectionChange)
       this.quill.destroy()
       this.quill = null
     }
   }
 
   render() {
+    const toolbar = this.props.toolbar ? null : (<Toolbar id={`toolbar-${this._id}`}></Toolbar>)
     return (
       <div className="quill-wrapper">
-        <div className="toolbar" ref={ (ref) => this._toolbar = ref }>
-          <span className="ql-format-group">
-            <select title="Font" className="ql-font" defaultValue="sans-serif">
-              <option value="sans-serif">Sans Serif</option>
-              <option value="serif">Serif</option>
-              <option value="monospace">Monospace</option>
-            </select>
-            <select title="Size" className="ql-size" defaultValue="13px">
-              <option value="10px">Small</option>
-              <option value="13px">Normal</option>
-              <option value="18px">Large</option>
-              <option value="32px">Huge</option>
-            </select>
-            </span>
-            <span className="ql-format-group">
-              <span title="Bold" className="ql-format-button ql-bold"></span>
-              <span className="ql-format-separator"></span>
-              <span title="Italic" className="ql-format-button ql-italic"></span>
-              <span className="ql-format-separator"></span>
-              <span title="Underline" className="ql-format-button ql-underline"></span>
-              <span className="ql-format-separator"></span>
-              <span title="Strikethrough" className="ql-format-button ql-strike"></span>
-            </span>
-            <span className="ql-format-group">
-            <select title="Text Color" className="ql-color" defaultValue="rgb(0, 0, 0)">
-              <option value="rgb(0, 0, 0)" label="rgb(0, 0, 0)" selected=""></option>
-              <option value="rgb(230, 0, 0)" label="rgb(230, 0, 0)"></option>
-              <option value="rgb(255, 153, 0)" label="rgb(255, 153, 0)"></option>
-              <option value="rgb(255, 255, 0)" label="rgb(255, 255, 0)"></option>
-              <option value="rgb(0, 138, 0)" label="rgb(0, 138, 0)"></option>
-              <option value="rgb(0, 102, 204)" label="rgb(0, 102, 204)"></option>
-              <option value="rgb(153, 51, 255)" label="rgb(153, 51, 255)"></option>
-              <option value="rgb(255, 255, 255)" label="rgb(255, 255, 255)"></option>
-              <option value="rgb(250, 204, 204)" label="rgb(250, 204, 204)"></option>
-              <option value="rgb(255, 235, 204)" label="rgb(255, 235, 204)"></option>
-              <option value="rgb(255, 255, 204)" label="rgb(255, 255, 204)"></option>
-              <option value="rgb(204, 232, 204)" label="rgb(204, 232, 204)"></option>
-              <option value="rgb(204, 224, 245)" label="rgb(204, 224, 245)"></option>
-              <option value="rgb(235, 214, 255)" label="rgb(235, 214, 255)"></option>
-              <option value="rgb(187, 187, 187)" label="rgb(187, 187, 187)"></option>
-              <option value="rgb(240, 102, 102)" label="rgb(240, 102, 102)"></option>
-              <option value="rgb(255, 194, 102)" label="rgb(255, 194, 102)"></option>
-              <option value="rgb(255, 255, 102)" label="rgb(255, 255, 102)"></option>
-              <option value="rgb(102, 185, 102)" label="rgb(102, 185, 102)"></option>
-              <option value="rgb(102, 163, 224)" label="rgb(102, 163, 224)"></option>
-              <option value="rgb(194, 133, 255)" label="rgb(194, 133, 255)"></option>
-              <option value="rgb(136, 136, 136)" label="rgb(136, 136, 136)"></option>
-              <option value="rgb(161, 0, 0)" label="rgb(161, 0, 0)"></option>
-              <option value="rgb(178, 107, 0)" label="rgb(178, 107, 0)"></option>
-              <option value="rgb(178, 178, 0)" label="rgb(178, 178, 0)"></option>
-              <option value="rgb(0, 97, 0)" label="rgb(0, 97, 0)"></option>
-              <option value="rgb(0, 71, 178)" label="rgb(0, 71, 178)"></option>
-              <option value="rgb(107, 36, 178)" label="rgb(107, 36, 178)"></option>
-              <option value="rgb(68, 68, 68)" label="rgb(68, 68, 68)"></option>
-              <option value="rgb(92, 0, 0)" label="rgb(92, 0, 0)"></option>
-              <option value="rgb(102, 61, 0)" label="rgb(102, 61, 0)"></option>
-              <option value="rgb(102, 102, 0)" label="rgb(102, 102, 0)"></option>
-              <option value="rgb(0, 55, 0)" label="rgb(0, 55, 0)"></option>
-              <option value="rgb(0, 41, 102)" label="rgb(0, 41, 102)"></option>
-              <option value="rgb(61, 20, 102)" label="rgb(61, 20, 102)"></option>
-            </select>
-            <span className="ql-format-separator"></span>
-            <select title="Background Color" className="ql-background" defaultValue="rgb(255, 255, 255)">
-              <option value="rgb(0, 0, 0)" label="rgb(0, 0, 0)"></option>
-              <option value="rgb(230, 0, 0)" label="rgb(230, 0, 0)"></option>
-              <option value="rgb(255, 153, 0)" label="rgb(255, 153, 0)"></option>
-              <option value="rgb(255, 255, 0)" label="rgb(255, 255, 0)"></option>
-              <option value="rgb(0, 138, 0)" label="rgb(0, 138, 0)"></option>
-              <option value="rgb(0, 102, 204)" label="rgb(0, 102, 204)"></option>
-              <option value="rgb(153, 51, 255)" label="rgb(153, 51, 255)"></option>
-              <option value="rgb(255, 255, 255)" label="rgb(255, 255, 255)"></option>
-              <option value="rgb(250, 204, 204)" label="rgb(250, 204, 204)"></option>
-              <option value="rgb(255, 235, 204)" label="rgb(255, 235, 204)"></option>
-              <option value="rgb(255, 255, 204)" label="rgb(255, 255, 204)"></option>
-              <option value="rgb(204, 232, 204)" label="rgb(204, 232, 204)"></option>
-              <option value="rgb(204, 224, 245)" label="rgb(204, 224, 245)"></option>
-              <option value="rgb(235, 214, 255)" label="rgb(235, 214, 255)"></option>
-              <option value="rgb(187, 187, 187)" label="rgb(187, 187, 187)"></option>
-              <option value="rgb(240, 102, 102)" label="rgb(240, 102, 102)"></option>
-              <option value="rgb(255, 194, 102)" label="rgb(255, 194, 102)"></option>
-              <option value="rgb(255, 255, 102)" label="rgb(255, 255, 102)"></option>
-              <option value="rgb(102, 185, 102)" label="rgb(102, 185, 102)"></option>
-              <option value="rgb(102, 163, 224)" label="rgb(102, 163, 224)"></option>
-              <option value="rgb(194, 133, 255)" label="rgb(194, 133, 255)"></option>
-              <option value="rgb(136, 136, 136)" label="rgb(136, 136, 136)"></option>
-              <option value="rgb(161, 0, 0)" label="rgb(161, 0, 0)"></option>
-              <option value="rgb(178, 107, 0)" label="rgb(178, 107, 0)"></option>
-              <option value="rgb(178, 178, 0)" label="rgb(178, 178, 0)"></option>
-              <option value="rgb(0, 97, 0)" label="rgb(0, 97, 0)"></option>
-              <option value="rgb(0, 71, 178)" label="rgb(0, 71, 178)"></option>
-              <option value="rgb(107, 36, 178)" label="rgb(107, 36, 178)"></option>
-              <option value="rgb(68, 68, 68)" label="rgb(68, 68, 68)"></option>
-              <option value="rgb(92, 0, 0)" label="rgb(92, 0, 0)"></option>
-              <option value="rgb(102, 61, 0)" label="rgb(102, 61, 0)"></option>
-              <option value="rgb(102, 102, 0)" label="rgb(102, 102, 0)"></option>
-              <option value="rgb(0, 55, 0)" label="rgb(0, 55, 0)"></option>
-              <option value="rgb(0, 41, 102)" label="rgb(0, 41, 102)"></option>
-              <option value="rgb(61, 20, 102)" label="rgb(61, 20, 102)"></option>
-            </select>
-          </span>
-          <span className="ql-format-group">
-            <span title="List" className="ql-format-button ql-list"></span>
-            <span className="ql-format-separator"></span>
-            <span title="Bullet" className="ql-format-button ql-bullet"></span>
-            <span className="ql-format-separator"></span>
-            <select title="Text Alignment" className="ql-align" defaultValue="Left">
-              <option value="left" label="Left"></option>
-              <option value="center" label="Center"></option>
-              <option value="right" label="Right"></option>
-              <option value="justify" label="Justify"></option>
-            </select>
-          </span>
-          <span className="ql-format-group">
-            <span title="Link" className="ql-format-button ql-link"></span>
-          </span>
-        </div>
-
-        <div ref={ (ref) => this._editor = ref }>
+        {toolbar}
+        <div id={`editor-${this._id}`}>
         </div>
       </div>
     );
   }
+}
+
+QuillTextEditor.propTypes = {
+  toolbar: React.PropTypes.string,
+  theme: React.PropTypes.string,
+  onTextChange: React.PropTypes.func,
+  onSelectionChange: React.PropTypes.func,
+}
+
+QuillTextEditor.defaultProps = {
+  theme: 'snow',
+  onTextChange: (delta, source) => {},
+  onSelectionChange: (range) => {},
 }
